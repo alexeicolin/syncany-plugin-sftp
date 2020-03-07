@@ -43,7 +43,6 @@ import org.syncany.plugins.sftp.SftpTransferSettings;
 import org.syncany.plugins.transfer.StorageException;
 import org.syncany.plugins.transfer.TransferManager;
 import org.syncany.plugins.transfer.TransferPlugin;
-import org.syncany.plugins.transfer.files.RemoteFile;
 import org.syncany.plugins.transfer.files.MultichunkRemoteFile;
 import org.syncany.tests.util.TestFileUtil;
 
@@ -152,9 +151,12 @@ public class SftpConnectionPluginTest {
 		transferManager.connect();	
 		transferManager.init(true);
 
-		Map<File, RemoteFile> uploadedFiles = uploadChunkFiles(transferManager, inputFiles.values());
-		Map<String, RemoteFile> remoteFiles = transferManager.list(RemoteFile.class);
-		Map<RemoteFile, File> downloadedLocalFiles = downloadRemoteFiles(transferManager, remoteFiles.values());
+		Map<File, MultichunkRemoteFile> uploadedFiles =
+			uploadChunkFiles(transferManager, inputFiles.values());
+		Map<String, MultichunkRemoteFile> remoteFiles =
+			transferManager.list(MultichunkRemoteFile.class);
+		Map<MultichunkRemoteFile, File> downloadedLocalFiles =
+			downloadRemoteFiles(transferManager, remoteFiles.values());
 
 		// Compare
 		assertEquals("Number of uploaded files should be the same as the input files.", uploadedFiles.size(), remoteFiles.size());
@@ -163,7 +165,7 @@ public class SftpConnectionPluginTest {
 		for (Map.Entry<String, File> inputFileEntry : inputFiles.entrySet()) {		
 			File inputFile = inputFileEntry.getValue();
 			
-			RemoteFile uploadedFile = uploadedFiles.get(inputFile);
+			MultichunkRemoteFile uploadedFile = uploadedFiles.get(inputFile);
 			File downloadedLocalFile = downloadedLocalFiles.get(uploadedFile);
 			
 			assertNotNull("Cannot be null.", uploadedFile);
@@ -176,14 +178,16 @@ public class SftpConnectionPluginTest {
 		}
 		
 		// Delete
-		for (RemoteFile remoteFileToDelete : uploadedFiles.values()) {			
+		for (MultichunkRemoteFile remoteFileToDelete : uploadedFiles.values()) {
 			transferManager.delete(remoteFileToDelete);
 		}
 		
-		Map<String, RemoteFile> remoteFiles2 = transferManager.list(RemoteFile.class);
-		Map<RemoteFile, File> downloadedLocalFiles2 = downloadRemoteFiles(transferManager, remoteFiles2.values());
+		Map<String, MultichunkRemoteFile> remoteFiles2 =
+			transferManager.list(MultichunkRemoteFile.class);
+		Map<MultichunkRemoteFile, File> downloadedLocalFiles2 =
+			downloadRemoteFiles(transferManager, remoteFiles2.values());
 		
-		for (RemoteFile remoteFileToBeDeleted : downloadedLocalFiles2.keySet()) {			
+		for (MultichunkRemoteFile remoteFileToBeDeleted : downloadedLocalFiles2.keySet()) {
 			assertFalse("Could not delete remote file.",downloadedLocalFiles2.containsKey(remoteFileToBeDeleted));
 		}
 	}	
@@ -199,13 +203,15 @@ public class SftpConnectionPluginTest {
 		return inputFilesMap;
 	}
 	
-	private Map<File, RemoteFile> uploadChunkFiles(TransferManager transferManager, Collection<File> inputFiles) throws StorageException {
-		Map<File, RemoteFile> inputFileOutputFile = new HashMap<File, RemoteFile>();
+	private Map<File, MultichunkRemoteFile> uploadChunkFiles(TransferManager transferManager,
+			Collection<File> inputFiles) throws StorageException {
+		Map<File, MultichunkRemoteFile> inputFileOutputFile =
+			new HashMap<File, MultichunkRemoteFile>();
 		
 		throw new RuntimeException("Not yet implemented");
 		/*
 		for (File inputFile : inputFiles) {
-			RemoteFile remoteOutputFile = new RemoteFile(inputFile.getName());
+			MultichunkRemoteFile remoteOutputFile = new MultichunkRemoteFile(inputFile.getName());
 			transferManager.upload(inputFile, remoteOutputFile);
 			
 			inputFileOutputFile.put(inputFile, remoteOutputFile);			
@@ -214,10 +220,12 @@ public class SftpConnectionPluginTest {
 		return inputFileOutputFile;*/
 	}
 	
-	private Map<RemoteFile, File> downloadRemoteFiles(TransferManager transferManager, Collection<RemoteFile> remoteFiles) throws StorageException {
-		Map<RemoteFile, File> downloadedLocalFiles = new HashMap<RemoteFile, File>();
+	private Map<MultichunkRemoteFile, File> downloadRemoteFiles(TransferManager transferManager,
+			Collection<MultichunkRemoteFile> remoteFiles) throws StorageException {
+		Map<MultichunkRemoteFile, File> downloadedLocalFiles =
+			new HashMap<MultichunkRemoteFile, File>();
 		
-		for (RemoteFile remoteFile : remoteFiles) {
+		for (MultichunkRemoteFile remoteFile : remoteFiles) {
 			File downloadedLocalFile = new File(tempLocalSourceDir+"/downloaded-"+remoteFile.getName());
 			transferManager.download(remoteFile, downloadedLocalFile);
 			
