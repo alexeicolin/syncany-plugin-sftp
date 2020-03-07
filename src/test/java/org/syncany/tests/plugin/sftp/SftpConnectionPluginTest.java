@@ -194,7 +194,8 @@ public class SftpConnectionPluginTest {
 	
 	private Map<String, File> generateTestInputFile() throws IOException {
 		Map<String, File> inputFilesMap = new HashMap<String, File>();
-		List<File> inputFiles = TestFileUtil.createRandomFilesInDirectory(tempLocalSourceDir, 50*1024, 10);
+		List<File> inputFiles = TestFileUtil.createRandomFilesInDirectory(
+				tempLocalSourceDir, "multichunk-%20h", 50*1024, 10);
 		
 		for (File file : inputFiles) {
 			inputFilesMap.put(file.getName(), file);
@@ -208,16 +209,13 @@ public class SftpConnectionPluginTest {
 		Map<File, MultichunkRemoteFile> inputFileOutputFile =
 			new HashMap<File, MultichunkRemoteFile>();
 		
-		throw new RuntimeException("Not yet implemented");
-		/*
 		for (File inputFile : inputFiles) {
 			MultichunkRemoteFile remoteOutputFile = new MultichunkRemoteFile(inputFile.getName());
 			transferManager.upload(inputFile, remoteOutputFile);
-			
 			inputFileOutputFile.put(inputFile, remoteOutputFile);			
 		}
 		
-		return inputFileOutputFile;*/
+		return inputFileOutputFile;
 	}
 	
 	private Map<MultichunkRemoteFile, File> downloadRemoteFiles(TransferManager transferManager,
